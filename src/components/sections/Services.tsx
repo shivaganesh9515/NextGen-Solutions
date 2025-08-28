@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 
 // Memoized service card component with mobile optimization
-const ServiceCard = memo(({ service, index, isMobile }: { 
+const ServiceCard = memo(({ service, index }: { 
   service: {
     id: string
     title: string
@@ -32,9 +32,9 @@ const ServiceCard = memo(({ service, index, isMobile }: {
     price: string
     popular?: boolean
   }, 
-  index: number,
-  isMobile: boolean
+  index: number
 }) => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const [ref, isInView] = useIntersectionObserver({
     threshold: isMobile ? 0.05 : 0.1,
     triggerOnce: true
@@ -184,23 +184,13 @@ const Services = memo(() => {
     triggerOnce: true
   })
   
-  const [isMobile, setIsMobile] = useState(false)
-
-  // Mobile detection
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  // Direct mobile check to avoid ReferenceError
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const scrollToSection = useCallback((sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
-      const offset = isMobile ? 60 : 80
+      const offset = (typeof window !== 'undefined' && window.innerWidth < 768) ? 60 : 80
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
       const offsetPosition = elementPosition - offset
       
@@ -209,7 +199,7 @@ const Services = memo(() => {
         behavior: 'smooth'
       })
     }
-  }, [isMobile])
+  }, [])
 
   return (
     <section id="services" className="relative py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-12 bg-gray-950 safe-area-padding">
@@ -243,7 +233,7 @@ const Services = memo(() => {
           isMobile ? 'grid-cols-1' : 'sm:grid-cols-2 lg:grid-cols-3'
         }`}>
           {SERVICES.map((service, index) => (
-            <ServiceCard key={service.id} service={service} index={index} isMobile={isMobile} />
+            <ServiceCard key={service.id} service={service} index={index} />
           ))}
         </div>
         

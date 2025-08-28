@@ -32,30 +32,8 @@ const TeamMemberCard = memo(({ member, index }: { member: {
     triggerOnce: true
   })
 
-  // Smart balancing: Calculate initial display count based on experience length
-  const calculateInitialDisplayCount = () => {
-    const experienceLength = member.experience.length
-    const totalSkills = member.expertise.length
-    
-    // Very short experience (< 50 chars): show maximum skills for balance
-    if (experienceLength < 50) {
-      return Math.min(6, totalSkills) // Show most skills for very short text
-    }
-    // Short experience (50-80 chars): show many skills
-    else if (experienceLength < 80) {
-      return Math.min(4, totalSkills)
-    }
-    // Medium experience (80-110 chars): show moderate skills
-    else if (experienceLength < 110) {
-      return Math.min(3, totalSkills)
-    }
-    // Long experience (> 110 chars): show fewer skills initially
-    else {
-      return Math.min(2, totalSkills)
-    }
-  }
-
-  const initialSkillsToShow = calculateInitialDisplayCount()
+  // Fixed initial display count for consistent card heights
+  const initialSkillsToShow = 6
 
   const roleColors = {
     'CEO & Digital Strategy Director': 'text-violet-400',
@@ -107,7 +85,7 @@ const TeamMemberCard = memo(({ member, index }: { member: {
               </span>
             )}
             initialDisplayCount={initialSkillsToShow}
-            showMoreText="more skills"
+            showMoreText="more things"
             showLessText="Show less"
             className="flex flex-wrap gap-1 justify-center"
             itemClassName=""

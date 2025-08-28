@@ -12,19 +12,10 @@ const Hero = () => {
     message: ''
   })
   const [hideSpline, setHideSpline] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
 
-  // Mobile detection
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
+  // Spline visibility on scroll
   useEffect(() => {
     const handleScroll = () => {
       const heroSection = document.getElementById('home')
@@ -304,7 +295,8 @@ const Hero = () => {
         >
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 py-8 sm:py-12 border-t border-white/10">
             {STATS.map((stat, idx) => {
-              const animationDuration = isMobile ? 3 : 2.5; // Calculate duration outside transition
+              // Use fixed duration to avoid any variable reference issues
+              const animationDuration = 2.5;
               
               return (
                 <motion.div 
@@ -318,7 +310,7 @@ const Hero = () => {
                 transition={{ 
                   delay: 1.5 + idx * 0.1,
                   y: {
-                    duration: animationDuration, // Use calculated duration
+                    duration: animationDuration,
                     repeat: Infinity,
                     repeatDelay: idx * 0.5,
                     ease: "easeInOut"

@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { Inter, Plus_Jakarta_Sans, Space_Grotesk } from 'next/font/google'
 import './globals.css'
 import { SITE_CONFIG } from '@/lib/constants'
-import FloatingNav from '@/components/layout/FloatingNav'
+import Navbar from '@/components/layout/Navbar'
 import PWAProvider from '@/components/PWAProvider'
 
 const inter = Inter({ 
@@ -106,7 +106,7 @@ export default function RootLayout({
     >
       <body className="font-inter min-h-screen bg-gray-950 text-white touch-manipulation">
         <PWAProvider>
-          <FloatingNav />
+          <Navbar />
           <main id="main-content">
             {children}
           </main>
