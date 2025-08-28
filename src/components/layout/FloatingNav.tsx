@@ -1,8 +1,9 @@
 'use client'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useState, memo, useCallback } from 'react'
+import { useEffect, useState, memo, useCallback, useMemo, useRef } from 'react'
 import { Rocket, Menu, X, Home, Briefcase, User, FolderOpen, DollarSign, Mail } from 'lucide-react'
 import { NAVIGATION_ITEMS } from '@/lib/constants'
+import { scrollToSection, throttle } from '@/lib/utils'
 import Button from '@/components/ui/Buttons'
 import { useRouter, usePathname } from 'next/navigation'
 
@@ -23,6 +24,12 @@ const FloatingNav = memo(() => {
   const [isScrolling, setIsScrolling] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const rafRef = useRef<number | null>(null)
+  const lastScrollY = useRef(0)
+  
+  // Memoize section icons to prevent re-creation
+  const sectionIcons = useMemo(() => SECTION_ICONS, [])
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -43,51 +50,59 @@ const FloatingNav = memo(() => {
     }
   }, [isMobileMenuOpen])
 
-  // Enhanced scroll handling with mobile optimizations
+  // Enhanced scroll handling with performance optimizations
   useEffect(() => {
-    let ticking = false
-    let scrollTimeout: NodeJS.Timeout
-    
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const currentScrollY = window.pageYOffset
-          
-          // Set scrolling state for mobile optimizations
-          setIsScrolling(true)
-          clearTimeout(scrollTimeout)
-          scrollTimeout = setTimeout(() => setIsScrolling(false), 150)
-          
-          // On detail pages, always keep navbar shrunk
-          if (pathname !== '/') {
-            setIsExpanded(false)
-            return
-          }
-          
-          // On home page, expanded when at top (mobile-optimized threshold: 100px)
-          setIsExpanded(currentScrollY < 100)
-          
-          // Active section detection with mobile-optimized offset
-          const sections = ['home', 'services', 'about', 'portfolio', 'pricing', 'contact']
-          let currentActiveSection = 'home'
-          
-          for (const sectionId of sections) {
-            const element = document.getElementById(sectionId)
-            if (element) {
-              const rect = element.getBoundingClientRect()
-              const offset = window.innerWidth < 768 ? 80 : 120 // Mobile-specific offset
-              if (rect.top <= offset && rect.bottom >= offset) {
-                currentActiveSection = sectionId
-              }
+    const handleScroll = throttle(() => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
+      
+      rafRef.current = requestAnimationFrame(() => {
+        const currentScrollY = window.pageYOffset
+        const scrollDelta = Math.abs(currentScrollY - lastScrollY.current)
+        
+        // Only update if scroll delta is significant (reduces re-renders)
+        if (scrollDelta < 5 && !isScrolling) return
+        
+        lastScrollY.current = currentScrollY
+        
+        // Set scrolling state with debounced reset
+        setIsScrolling(true)
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current)
+        }
+        scrollTimeoutRef.current = setTimeout(() => setIsScrolling(false), 100)
+        
+        // On detail pages, always keep navbar shrunk
+        if (pathname !== '/') {
+          setIsExpanded(false)
+          return
+        }
+        
+        // Optimized expanded state calculation
+        const shouldBeExpanded = currentScrollY < 80
+        setIsExpanded(shouldBeExpanded)
+        
+        // Optimized active section detection
+        const sections = ['home', 'services', 'about', 'portfolio', 'pricing', 'contact']
+        let currentActiveSection = 'home'
+        const offset = window.innerWidth < 768 ? 60 : 80
+        
+        // Use more efficient section detection
+        for (let i = sections.length - 1; i >= 0; i--) {
+          const element = document.getElementById(sections[i])
+          if (element) {
+            const rect = element.getBoundingClientRect()
+            if (rect.top <= offset) {
+              currentActiveSection = sections[i]
+              break
             }
           }
-          
-          setActiveSection(currentActiveSection)
-          ticking = false
-        })
-        ticking = true
-      }
-    }
+        }
+        
+        setActiveSection(currentActiveSection)
+      })
+    }, 16) // ~60fps throttling
 
     // Set initial state based on current page
     if (pathname !== '/') {
@@ -97,41 +112,67 @@ const FloatingNav = memo(() => {
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', handleScroll)
-      clearTimeout(scrollTimeout)
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current)
+      }
     }
-  }, [pathname])
+  }, [pathname, isScrolling])
 
-  const scrollToSection = useCallback((sectionId: string) => {
+  const handleScrollToSection = useCallback((sectionId: string) => {
     if (pathname !== '/') {
       router.push(`/#${sectionId}`)
       return
     }
     
-    const element = document.getElementById(sectionId)
-    if (element) {
-      const offset = window.innerWidth < 768 ? 60 : 80 // Mobile-specific scroll offset
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
-      const offsetPosition = elementPosition - offset
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      })
-    }
+    scrollToSection(sectionId)
     setIsMobileMenuOpen(false)
   }, [pathname, router])
 
-  // Close mobile menu on escape key
+  // Optimized mobile menu toggle
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(prev => !prev)
+  }, [])
+  
+  // Optimized mobile menu close
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false)
+  }, [])
+  
+  // Prevent body scroll when mobile menu is open with performance optimization
   useEffect(() => {
+    if (isMobileMenuOpen) {
+      const scrollY = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.width = '100%'
+      document.body.style.overflow = 'hidden'
+      
+      return () => {
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        document.body.style.overflow = ''
+        window.scrollTo(0, scrollY)
+      }
+    }
+  }, [isMobileMenuOpen])
+  
+  // Optimized escape key handler
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+    
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isMobileMenuOpen) {
-        setIsMobileMenuOpen(false)
+      if (e.key === 'Escape') {
+        closeMobileMenu()
       }
     }
     
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isMobileMenuOpen])
+  }, [isMobileMenuOpen, closeMobileMenu])
 
   return (
     <>
@@ -167,7 +208,7 @@ const FloatingNav = memo(() => {
             
             {/* Logo with mobile optimization */}
             <motion.button 
-              onClick={() => scrollToSection('home')}
+              onClick={() => handleScrollToSection('home')}
               className="flex items-center group hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500/50 rounded-lg p-1 touch-target"
               aria-label="Navigate to home section"
               animate={{
@@ -196,7 +237,7 @@ const FloatingNav = memo(() => {
                 return (
                   <motion.button
                     key={item.name}
-                    onClick={() => scrollToSection(sectionId)}
+                    onClick={() => handleScrollToSection(sectionId)}
                     className={`glass-effect rounded-full font-light transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500/50 touch-target backdrop-blur-md border ${
                       isExpanded ? 'px-2 xl:px-3 py-1 text-xs' : 'px-1.5 xl:px-2 py-0.5 text-xs'
                     } ${
@@ -225,7 +266,7 @@ const FloatingNav = memo(() => {
               >
                 <Button 
                   variant="animated" 
-                  onClick={() => scrollToSection('contact')}
+                  onClick={() => handleScrollToSection('contact')}
                   className="get-quote-btn magnetic-button transition-all duration-300 focus:ring-2 focus:ring-violet-500/50"
                   style={{
                     fontSize: isExpanded ? '10px' : '9px',
@@ -242,7 +283,7 @@ const FloatingNav = memo(() => {
 
             {/* Enhanced Mobile Menu Button */}
             <motion.button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
               className={`lg:hidden backdrop-blur-md bg-white/10 border border-white/20 rounded-xl flex items-center justify-center hover:bg-white/20 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500/50 touch-target ${
                 isExpanded ? 'h-10 w-10 sm:h-11 sm:w-11' : 'h-9 w-9 sm:h-10 sm:w-10'
               } ${isMobileMenuOpen ? 'bg-violet-600/80 border-violet-500/50' : ''}`}
@@ -293,7 +334,7 @@ const FloatingNav = memo(() => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
               aria-hidden="true"
             />
             
@@ -309,8 +350,7 @@ const FloatingNav = memo(() => {
               <div className="flex items-center justify-between p-6 border-b border-white/10">
                 <button
                   onClick={() => {
-                    scrollToSection('home')
-                    setIsMobileMenuOpen(false)
+                    handleScrollToSection('home')
                   }}
                   className="flex items-center hover:scale-105 transition-transform duration-200 touch-target"
                   aria-label="Navigate to home section"
@@ -323,7 +363,7 @@ const FloatingNav = memo(() => {
                   </span>
                 </button>
                 <button
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                   className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-colors duration-200 touch-target"
                   aria-label="Close navigation menu"
                 >
@@ -336,15 +376,12 @@ const FloatingNav = memo(() => {
                 {NAVIGATION_ITEMS.map((item, index) => {
                   const sectionId = item.href.replace('#', '')
                   const isActive = activeSection === sectionId
-                  const IconComponent = SECTION_ICONS[sectionId as keyof typeof SECTION_ICONS] || Home
+                  const IconComponent = sectionIcons[sectionId as keyof typeof sectionIcons] || Home
                   
                   return (
                     <motion.button
                       key={item.name}
-                      onClick={() => {
-                        scrollToSection(sectionId)
-                        setIsMobileMenuOpen(false)
-                      }}
+                      onClick={() => handleScrollToSection(sectionId)}
                       className={`flex items-center px-6 py-4 text-left transition-all duration-200 touch-target hover:bg-white/10 active:bg-white/15 ${
                         isActive 
                           ? 'text-white bg-violet-600/20 border-r-2 border-violet-500 font-medium' 
@@ -379,10 +416,7 @@ const FloatingNav = memo(() => {
                 >
                   <Button 
                     variant="animated" 
-                    onClick={() => {
-                      scrollToSection('contact')
-                      setIsMobileMenuOpen(false)
-                    }}
+                    onClick={() => handleScrollToSection('contact')}
                     className="w-full get-quote-btn-mobile magnetic-button text-center justify-center"
                   >
                     <Rocket className="mr-2 w-4 h-4" />

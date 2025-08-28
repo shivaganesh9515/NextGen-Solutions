@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { TEAM_MEMBERS } from '@/lib/constants'
 import { memo } from 'react'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
+import { ExpandableList } from '@/components/ui'
 import { 
   Target, 
   Lightbulb, 
@@ -31,8 +32,34 @@ const TeamMemberCard = memo(({ member, index }: { member: {
     triggerOnce: true
   })
 
+  // Smart balancing: Calculate initial display count based on experience length
+  const calculateInitialDisplayCount = () => {
+    const experienceLength = member.experience.length
+    const totalSkills = member.expertise.length
+    
+    // Very short experience (< 50 chars): show maximum skills for balance
+    if (experienceLength < 50) {
+      return Math.min(6, totalSkills) // Show most skills for very short text
+    }
+    // Short experience (50-80 chars): show many skills
+    else if (experienceLength < 80) {
+      return Math.min(4, totalSkills)
+    }
+    // Medium experience (80-110 chars): show moderate skills
+    else if (experienceLength < 110) {
+      return Math.min(3, totalSkills)
+    }
+    // Long experience (> 110 chars): show fewer skills initially
+    else {
+      return Math.min(2, totalSkills)
+    }
+  }
+
+  const initialSkillsToShow = calculateInitialDisplayCount()
+
   const roleColors = {
     'CEO & Digital Strategy Director': 'text-violet-400',
+    'Full Stack Developer': 'text-violet-400',
     'Head of Analytics': 'text-purple-400',
     'Social Media Manager': 'text-pink-400',
     'SEO Specialist': 'text-blue-400'
@@ -52,40 +79,46 @@ const TeamMemberCard = memo(({ member, index }: { member: {
   return (
     <motion.div 
       ref={ref}
-      className="glass-card p-6 text-center"
+      className="glass-card p-6 text-center h-full flex flex-col justify-between"
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover={{ scale: 1.02, y: -5 }}
     >
-      <div className={`w-24 h-24 bg-gradient-to-br ${member.color} rounded-full flex items-center justify-center mx-auto mb-4`} role="img" aria-label={`${member.name} profile picture`}>
-        <User className="text-white" size={32} aria-hidden="true" />
-      </div>
-      <h3 className="text-lg font-semibold mb-2 hero-text">{member.name}</h3>
-      <p className={`${roleColors[member.role as keyof typeof roleColors]} text-sm mb-3`}>
-        {member.role}
-      </p>
-      <p className="text-gray-400 text-sm mb-4">{member.experience}</p>
-      
-      {/* Expertise Tags */}
-      <div className="flex flex-wrap gap-1 justify-center mb-4">
-        {member.expertise.slice(0, 2).map((skill: string, idx: number) => (
-          <span 
-            key={idx}
-            className="bg-white/10 text-xs px-2 py-1 rounded-full text-gray-300"
-          >
-            {skill}
-          </span>
-        ))}
-        {member.expertise.length > 2 && (
-          <span className="text-xs text-violet-400 font-medium">
-            +{member.expertise.length - 2} more
-          </span>
-        )}
+      <div className="flex-1 flex flex-col">
+        <div className={`w-24 h-24 bg-gradient-to-br ${member.color} rounded-full flex items-center justify-center mx-auto mb-4`} role="img" aria-label={`${member.name} profile picture`}>
+          <User className="text-white" size={32} aria-hidden="true" />
+        </div>
+        <h3 className="text-lg font-semibold mb-2 hero-text">{member.name}</h3>
+        <p className={`${roleColors[member.role as keyof typeof roleColors]} text-sm mb-3`}>
+          {member.role}
+        </p>
+        <div className="flex-1 flex flex-col justify-center">
+          <p className="text-gray-400 text-sm mb-4 line-clamp-3">{member.experience}</p>
+        </div>
+        
+        {/* Expertise Tags */}
+        <div className="mb-4">
+          <ExpandableList
+            items={member.expertise}
+            renderItem={(skill: string) => (
+              <span className="bg-white/10 text-xs px-2 py-1 rounded-full text-gray-300">
+                {skill}
+              </span>
+            )}
+            initialDisplayCount={initialSkillsToShow}
+            showMoreText="more skills"
+            showLessText="Show less"
+            className="flex flex-wrap gap-1 justify-center"
+            itemClassName=""
+            buttonClassName="text-xs text-violet-400 font-medium hover:text-violet-300 transition-colors cursor-pointer bg-white/5 hover:bg-white/10 px-2 py-1 rounded-full"
+            ariaLabel={`${member.name} expertise skills`}
+          />
+        </div>
       </div>
 
       {/* Social Links */}
-      <ul className="flex justify-center space-x-3" aria-label={`${member.name} social media links`}>
+      <ul className="flex justify-center space-x-3 mt-auto" aria-label={`${member.name} social media links`}>
         {Object.entries(member.social).map(([platform, url]) => (
           <li key={platform}>
             <motion.a 
@@ -214,7 +247,7 @@ const About = memo(() => {
         {/* TEAM MEMBERS - OPTIMIZED */}
         <section aria-labelledby="team-heading">
           <h3 id="team-heading" className="sr-only">Our Team Members</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 auto-rows-fr">
             {TEAM_MEMBERS.map((member, index) => (
               <TeamMemberCard key={member.id} member={member} index={index} />
             ))}

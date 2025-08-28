@@ -3,19 +3,15 @@ import { motion } from 'framer-motion'
 import { memo } from 'react'
 import Link from 'next/link'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
+import { ExpandableList } from '@/components/ui'
+import { CASE_STUDIES, TESTIMONIALS } from '@/lib/constants'
 import { Trophy, ArrowRight, Star, ChevronRight } from 'lucide-react'
 
 // Memoized case study card
-const CaseStudyCard = memo(({ study, index }: { study: {
-  id: string
-  title: string
-  category: string
-  categoryColor: string
-  duration: string
-  description: string
-  metrics: Array<{ value: string; label: string }>
-  result: string
-}, index: number }) => {
+const CaseStudyCard = memo(({ study, index }: { 
+  study: (typeof CASE_STUDIES)[number]
+  index: number 
+}) => {
   const [ref, isInView] = useIntersectionObserver({
     threshold: 0.1,
     triggerOnce: true
@@ -42,6 +38,26 @@ const CaseStudyCard = memo(({ study, index }: { study: {
         {study.description}
       </p>
       
+      {/* Technologies */}
+      <div className="mb-6">
+        <h4 className="text-sm font-medium text-gray-300 mb-3">Technologies Used</h4>
+        <ExpandableList
+          items={study.technologies}
+          renderItem={(tech: string) => (
+            <span className="bg-white/10 text-xs px-2 py-1 rounded-full text-gray-300">
+              {tech}
+            </span>
+          )}
+          initialDisplayCount={3}
+          showMoreText="more tech"
+          showLessText="Show less"
+          className="flex flex-wrap gap-2"
+          itemClassName=""
+          buttonClassName="text-xs text-violet-400 font-medium hover:text-violet-300 transition-colors cursor-pointer bg-white/5 hover:bg-white/10 px-2 py-1 rounded-full"
+          ariaLabel={`${study.title} technologies`}
+        />
+      </div>
+      
       <div className="grid grid-cols-2 gap-4 mb-6">
         {study.metrics.map((metric, idx: number) => (
           <motion.div 
@@ -49,21 +65,27 @@ const CaseStudyCard = memo(({ study, index }: { study: {
             className="text-center p-4 rounded-lg bg-white/5"
             whileHover={{ scale: 1.02 }}
           >
-            <div className="text-2xl font-light text-gradient mb-1">{metric.value}</div>
+            <div className={`text-2xl font-light mb-1 ${metric.color}`}>{metric.value}</div>
             <div className="text-xs text-gray-500">{metric.label}</div>
           </motion.div>
         ))}
       </div>
       
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-500">{study.result}</div>
+      <div className="border-t border-white/10 pt-4 mb-6">
+        <blockquote className="text-sm text-gray-300 italic mb-2">
+          &quot;{study.testimonial.quote}&quot;
+        </blockquote>
+        <cite className="text-xs text-violet-400">- {study.testimonial.author}, {study.testimonial.position}</cite>
+      </div>
+      
+      <div className="flex items-center justify-center">
         <Link href={`/portfolio/${study.id}`}>
           <motion.button 
-            className="glass-effect px-4 py-2 rounded-full text-sm font-medium hover:bg-violet-600/20 transition-all duration-300 flex items-center justify-center"
+            className="glass-effect px-6 py-3 rounded-full text-sm font-medium hover:bg-violet-600/20 transition-all duration-300 flex items-center justify-center w-full"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <span className="font-medium tracking-wide">View Details</span>
+            <span className="font-medium tracking-wide">View Full Case Study</span>
             <ArrowRight className="ml-2" size={14} />
           </motion.button>
         </Link>
@@ -75,13 +97,10 @@ const CaseStudyCard = memo(({ study, index }: { study: {
 CaseStudyCard.displayName = 'CaseStudyCard'
 
 // Memoized testimonial card
-const TestimonialCard = memo(({ testimonial, index }: { testimonial: {
-  quote: string
-  author: string
-  company: string
-  role: string
-  rating: number
-}, index: number }) => {
+const TestimonialCard = memo(({ testimonial, index }: { 
+  testimonial: (typeof TESTIMONIALS)[number]
+  index: number 
+}) => {
   const [ref, isInView] = useIntersectionObserver({
     threshold: 0.1,
     triggerOnce: true
@@ -104,11 +123,11 @@ const TestimonialCard = memo(({ testimonial, index }: { testimonial: {
       </div>
       
       <blockquote className="text-gray-300 leading-relaxed mb-6">
-        &quot;{testimonial.quote}&quot;
+        &quot;{testimonial.content}&quot;
       </blockquote>
       
       <div className="border-t border-white/10 pt-4">
-        <div className="font-semibold text-white">{testimonial.author}</div>
+        <div className="font-semibold text-white">{testimonial.name}</div>
         <div className="text-violet-400 text-sm">{testimonial.role}</div>
         <div className="text-gray-400 text-sm">{testimonial.company}</div>
       </div>
@@ -135,72 +154,6 @@ const Portfolio = memo(() => {
     }
   }
 
-  const caseStudies = [
-    {
-      id: 'techgear-electronics',
-      title: 'TechGear Electronics',
-      category: 'E-commerce',
-      categoryColor: 'text-green-400',
-      duration: '6 months',
-      description: 'Revenue Growth for an electronics e-commerce store through comprehensive SEO and PPC campaigns',
-      metrics: [
-        { value: '385%', label: 'Revenue Increase' },
-        { value: '280%', label: 'Organic Traffic' }
-      ],
-      result: '₹12L+ revenue generated'
-    },
-    {
-      id: 'bella-vista-restaurants',
-      title: 'Bella Vista Restaurants',
-      category: 'Food & Beverage',
-      categoryColor: 'text-yellow-400',
-      duration: '4 months',
-      description: 'Local restaurant chain expansion through social media marketing and local SEO optimization',
-      metrics: [
-        { value: '250%', label: 'Local Visibility' },
-        { value: '180%', label: 'Social Engagement' }
-      ],
-      result: '3 new locations opened'
-    },
-    {
-      id: 'cloudflow-solutions',
-      title: 'CloudFlow Solutions',
-      category: 'Software Technology',
-      categoryColor: 'text-blue-400',
-      duration: '8 months',
-      description: 'SaaS lead generation through content marketing, LinkedIn ads, and conversion optimization',
-      metrics: [
-        { value: '420%', label: 'Lead Generation' },
-        { value: '65%', label: 'Cost per Lead' }
-      ],
-      result: '₹8L+ MRR achieved'
-    }
-  ]
-
-  const testimonials = [
-    {
-      quote: "NextGen Solutions transformed our online presence completely. Our revenue increased by 385% in just 6 months!",
-      author: "Rajesh Kumar",
-      company: "TechGear Electronics",
-      role: "Founder & CEO",
-      rating: 5
-    },
-    {
-      quote: "The team's expertise in local SEO helped us expand to 3 new locations. Their social media strategy was outstanding.",
-      author: "Maria Gonzalez",
-      company: "Bella Vista Restaurants",
-      role: "Marketing Director",
-      rating: 5
-    },
-    {
-      quote: "Professional, data-driven approach. They helped us achieve ₹8L+ MRR through strategic lead generation campaigns.",
-      author: "David Chen",
-      company: "CloudFlow Solutions",
-      role: "Co-founder",
-      rating: 5
-    }
-  ]
-
   return (
     <section id="portfolio" className="relative py-24 px-6 lg:px-12 bg-gray-950">
       <div className="max-w-7xl mx-auto">
@@ -226,7 +179,7 @@ const Portfolio = memo(() => {
         
         {/* CASE STUDIES GRID - OPTIMIZED */}
         <div className="grid lg:grid-cols-3 gap-8 mb-24">
-          {caseStudies.map((study, index) => (
+          {CASE_STUDIES.map((study, index) => (
             <CaseStudyCard key={study.id} study={study} index={index} />
           ))}
         </div>
@@ -248,8 +201,8 @@ const Portfolio = memo(() => {
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-20">
-          {testimonials.map((testimonial, idx) => (
-            <TestimonialCard key={idx} testimonial={testimonial} index={idx} />
+          {TESTIMONIALS.map((testimonial, idx) => (
+            <TestimonialCard key={testimonial.id} testimonial={testimonial} index={idx} />
           ))}
         </div>
 

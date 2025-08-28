@@ -1,25 +1,33 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { Menu, X, Rocket } from 'lucide-react'
 import { scrollToSection } from '@/lib/utils'
 import { NAVIGATION_ITEMS } from '@/lib/constants'
-import Button from '@/components/ui/Buttons'  // ✅ Keeping your naming
+import Button from '@/components/ui/Buttons'
 
-const Navbar = () => {
+const Navbar = memo(() => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const handleNavClick = (href: string) => {
+  const handleNavClick = useCallback((href: string) => {
     scrollToSection(href)
     setIsMobileMenuOpen(false)
-  }
+  }, [])
 
-  const handleKeyDown = (e: React.KeyboardEvent, href: string) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, href: string) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       handleNavClick(href)
     }
-  }
+  }, [handleNavClick])
+  
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(prev => !prev)
+  }, [])
+  
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false)
+  }, [])
 
   return (
     <header className="relative z-30">
@@ -84,7 +92,7 @@ const Navbar = () => {
         {/* Mobile Menu Button - ARIA FIXED */}
         {/* Mobile Menu Button - BULLETPROOF VERSION */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
               className="lg:hidden backdrop-blur-sm bg-white/5 border border-white/10 h-12 w-12 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
               aria-label={isMobileMenuOpen ? 'Close mobile menu' : 'Open mobile menu'}
               aria-controls="mobile-menu"
@@ -115,7 +123,7 @@ const Navbar = () => {
           {/* Close button */}
           <div className="absolute top-6 right-6">
             <button 
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
               className="backdrop-blur-sm bg-white/5 border border-white/10 h-12 w-12 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
               aria-label="Close mobile menu"
               type="button"
@@ -174,6 +182,8 @@ const Navbar = () => {
       `}</style>
     </header>
   )
-}
+})
+
+Navbar.displayName = 'Navbar'
 
 export default Navbar

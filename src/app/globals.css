@@ -28,6 +28,7 @@ body {
   /* Mobile optimizations */
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   /* Mobile viewport fix */
   min-height: 100vh;
@@ -54,6 +55,14 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Line Clamp Utilities */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
 }
 
 /* Glass Effects */
@@ -250,17 +259,9 @@ button:focus-visible {
   outline: none !important;
   letter-spacing: 2px !important;
   box-shadow: 
-    rgb(93 24 220) 0px 5px 20px 0px,
-    0 0 0 3px rgba(139, 92, 246, 0.3) !important;
-  transition: all 0.3s ease-out !important;
-}
-
-.get-quote-btn:focus {
-  outline: none !important;
-  letter-spacing: 2px !important;
-  box-shadow: 
     rgb(93 24 220) 0px 7px 29px 0px,
     0 0 0 3px rgba(139, 92, 246, 0.3) !important;
+  transition: all 0.3s ease-out !important;
 }
 
 /* Magnetic Effect */
@@ -359,6 +360,7 @@ button:focus-visible {
 .btn-glass {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
   padding: 12px 24px;
@@ -568,6 +570,7 @@ button:focus-visible {
     bottom: 0;
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     z-index: 40;
     opacity: 0;
     visibility: hidden;
@@ -588,6 +591,7 @@ button:focus-visible {
     height: 100vh;
     background: rgba(10, 10, 10, 0.95);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     z-index: 50;
     transition: right 0.3s ease;

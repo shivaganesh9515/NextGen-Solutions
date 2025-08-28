@@ -4,6 +4,7 @@ import { SERVICES } from '@/lib/constants'
 import { memo, useCallback, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
+import { ExpandableList } from '@/components/ui'
 import { 
   Search, 
   Smartphone, 
@@ -132,16 +133,26 @@ const ServiceCard = memo(({ service, index, isMobile }: {
           {service.description}
         </p>
         
-        <ul className={`text-gray-500 space-y-2 mb-4 sm:mb-6 ${
-          isMobile ? 'text-xs' : 'text-sm'
-        }`}>
-          {service.features.slice(0, isMobile ? 3 : 4).map((feature: string, idx: number) => (
-            <li key={idx} className="flex items-start">
+        <ExpandableList
+          items={service.features}
+          renderItem={(feature: string) => (
+            <li className="flex items-start">
               <CheckCircle className={`mr-2 mt-0.5 flex-shrink-0 ${iconColor}`} size={isMobile ? 14 : 16} />
               <span className="leading-tight">{feature}</span>
             </li>
-          ))}
-        </ul>
+          )}
+          initialDisplayCount={isMobile ? 3 : 4}
+          showMoreText="more features"
+          showLessText="Show less"
+          className={`text-gray-500 space-y-2 mb-4 sm:mb-6 ${isMobile ? 'text-xs' : 'text-sm'}`}
+          itemClassName=""
+          buttonClassName={`text-xs font-medium transition-colors cursor-pointer px-2 py-1 rounded-full mt-2 ${
+            isMobile 
+              ? 'text-violet-400 hover:text-violet-300 bg-white/5 hover:bg-white/10' 
+              : 'text-violet-400 hover:text-violet-300 bg-white/5 hover:bg-white/10'
+          }`}
+          ariaLabel={`${service.title} features`}
+        />
         
         <div className="flex items-center justify-between">
           <div className={`text-gray-500 font-medium ${

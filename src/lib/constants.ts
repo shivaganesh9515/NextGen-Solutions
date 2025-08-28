@@ -1,4 +1,22 @@
-// Site configuration constants
+// ========================================
+// NEXTGEN SOLUTIONS - CONSTANTS
+// ========================================
+// This file contains all static data used throughout the application.
+// UPDATE GUIDE:
+// - Site config: Basic site information and metadata
+// - Navigation: Menu items and routing
+// - Services: All service offerings and pricing
+// - Team: Team member information and roles
+// - Portfolio: Case studies and testimonials
+// - Pricing: Service packages and features
+// - Contact: Contact information and social links
+// ========================================
+
+// ========================================
+// SITE CONFIGURATION
+// ========================================
+// Basic site information, SEO metadata, and social links
+// Update these when changing brand information or domain
 export const SITE_CONFIG = {
   name: "Nextgen Solutions",
   title: "Nextgen Solutions - Digital Marketing Agency",
@@ -14,6 +32,12 @@ export const SITE_CONFIG = {
   }
 } as const
 
+// ========================================
+// NAVIGATION & ROUTING
+// ========================================
+// Main navigation menu items
+// Update these when adding/removing sections or changing section names
+
 // Navigation menu items
 export const NAVIGATION_ITEMS = [
   { name: 'Home', href: '#home' },
@@ -23,6 +47,12 @@ export const NAVIGATION_ITEMS = [
   { name: 'Pricing', href: '#pricing' },
   { name: 'Contact', href: '#contact' }
 ] as const
+
+// ========================================
+// CONTACT INFORMATION
+// ========================================
+// Company contact details, address, and social media links
+// Update these when contact information changes
 
 // Contact information
 export const CONTACT_INFO = {
@@ -44,6 +74,12 @@ export const CONTACT_INFO = {
   }
 } as const
 
+// ========================================
+// HOMEPAGE STATISTICS
+// ========================================
+// Key statistics displayed on the homepage hero section
+// Update these values regularly to reflect current business metrics
+
 // Statistics for homepage
 export const STATS = [
   { value: '200+', label: 'Projects Completed', color: 'text-violet-400' },
@@ -51,6 +87,18 @@ export const STATS = [
   { value: '5+', label: 'Years Experience', color: 'text-pink-400' },
   { value: '24/7', label: 'Support', color: 'text-blue-400' }
 ] as const
+
+// ========================================
+// SERVICES & OFFERINGS
+// ========================================
+// Complete list of all services offered by the company
+// UPDATE GUIDE:
+// - Add new services: Create new object with unique 'id'
+// - Update pricing: Modify 'price' field
+// - Add features: Add to 'features' array
+// - Special badges: Use 'popular', 'trending', 'highRoi' flags
+// - Service gradients: Update 'gradient' for brand consistency
+// ========================================
 
 // Complete service offerings
 export const SERVICES = [
@@ -217,8 +265,20 @@ export const SERVICES = [
       'WhatsApp API Integration',
       'Analytics & Performance Tracking'
     ]
-  }
+  },
+  
 ] as const
+
+// ========================================
+// PRICING PACKAGES
+// ========================================
+// Service packages with pricing tiers
+// UPDATE GUIDE:
+// - Update pricing: Modify 'price' field
+// - Add/remove features: Update 'features' array
+// - Popular plan: Set 'popular: true' for highlighted plan
+// - Package names: Update 'name' and 'description' fields
+// ========================================
 
 // Pricing packages
 export const PRICING_PLANS = [
@@ -280,61 +340,17 @@ export const PRICING_PLANS = [
   }
 ] as const
 
-// Team members information
-export const TeamMembers = [
-  {
-    id: 'sarah',
-    name: 'Sarah Johnson',
-    role: 'CEO & Digital Strategy Director',
-    experience: '10+ years in digital marketing',
-    expertise: ['SEO Strategy', 'PPC Management', 'Content Marketing', 'Team Leadership'],
-    bio: 'Sarah leads our strategic initiatives and has helped over 200 businesses achieve digital success.',
-    color: 'from-violet-600 to-purple-600',
-    social: {
-      linkedin: 'https://linkedin.com/in/shivaganesh-gajavelli',
-      twitter: 'https://twitter.com/sarah_johnson'
-    }
-  },
-  {
-    id: 'michael',
-    name: 'Michael Chen',
-    role: 'Head of Analytics',
-    experience: '8+ years in data analytics',
-    expertise: ['Google Analytics', 'Data Analysis', 'Performance Tracking', 'ROI Optimization'],
-    bio: 'Michael ensures our campaigns are data-driven and deliver measurable results for every client.',
-    color: 'from-purple-600 to-pink-600',
-    social: {
-      linkedin: 'https://linkedin.com/in/michael-chen',
-      twitter: 'https://twitter.com/michael_chen'
-    }
-  },
-  {
-    id: 'emily',
-    name: 'Emily Rodriguez',
-    role: 'Social Media Manager',
-    experience: '6+ years in social media marketing',
-    expertise: ['Social Strategy', 'Content Creation', 'Community Management', 'Influencer Relations'],
-    bio: 'Emily creates engaging social media experiences that build strong communities around brands.',
-    color: 'from-pink-600 to-red-600',
-    social: {
-      linkedin: 'https://linkedin.com/in/emily-rodriguez',
-      instagram: 'https://instagram.com/emily_rodriguez'
-    }
-  },
-  {
-    id: 'david',
-    name: 'David Park',
-    role: 'SEO Specialist',
-    experience: '5+ years in search engine optimization',
-    expertise: ['Technical SEO', 'Keyword Research', 'Link Building', 'Local SEO'],
-    bio: 'David helps businesses dominate search results through strategic SEO implementations.',
-    color: 'from-blue-600 to-indigo-600',
-    social: {
-      linkedin: 'https://linkedin.com/in/david-park',
-      github: 'https://github.com/david-park'
-    }
-  }
-] as const
+// ========================================
+// CLIENT TESTIMONIALS
+// ========================================
+// Customer reviews and feedback
+// UPDATE GUIDE:
+// - Add new testimonials: Create new object with unique 'id'
+// - Update content: Modify 'content' field for testimonial text
+// - Company info: Update 'company', 'name', 'role' fields
+// - Rating: Use 1-5 star rating system
+// - Images: Add testimonial photos to /public/testimonials/
+// ========================================
 
 // Testimonials from clients
 export const TESTIMONIALS = [
@@ -370,18 +386,32 @@ export const TESTIMONIALS = [
 // FAQ section data
 // Removed duplicate FAQS declaration to resolve redeclaration error.
 
+// ========================================
+// TEAM MEMBERS
+// ========================================
+// Team member profiles and information
+// UPDATE GUIDE:
+// - Add new members: Create new object with unique 'id'
+// - Update roles: Modify 'role' field
+// - Add expertise: Update 'expertise' array (keep concise)
+// - Experience: Update 'experience' field with years and specializations
+// - Colors: Use gradient classes for profile styling
+// - Social links: Add/update social media profiles
+// - EXPANDABLE: First 2 expertise items shown by default
+// ========================================
+
 // Team Members Data
 export const TEAM_MEMBERS = [
   {
     id: '1',
-    name: 'Sarah Johnson',
-    role: 'CEO & Digital Strategy Director',
-    expertise: ['SEO', 'Strategy', 'PPC Management', 'Content Marketing'],
-    experience: '10+ years in digital marketing. Expert in SEO, Strategy, PPC Management, Content Marketing.',
+    name: 'Shivaganesh Gajavelli',
+    role: 'Full Stack Developer',
+    expertise: ['React.js', 'Angular', 'Python', 'Node.js', 'TypeScript', 'MongoDB', 'Next.js', 'Express.js'],
+    experience: '2+ years in Full Stack Development',
     color: 'from-violet-600 to-purple-600',
     social: {
-      linkedin: '#',
-      twitter: '#'
+      linkedin: 'https://linkedin.com/in/shivaganesh-gajavelli',
+      twitter: 'https://twitter.com/@gunny9700'
     }
   },
   {
@@ -440,6 +470,17 @@ export interface TeamMember {
 
 // Removed duplicate CONTACT_INFO declaration to resolve redeclaration error.
 
+// ========================================
+// FREQUENTLY ASKED QUESTIONS
+// ========================================
+// Common questions and answers for the website
+// UPDATE GUIDE:
+// - Add new FAQs: Create new object with unique 'id'
+// - Update questions: Modify 'question' field
+// - Update answers: Modify 'answer' field
+// - Order: Place most important/common questions first
+// ========================================
+
 // FAQ Data
 export const FAQS = [
   {
@@ -468,6 +509,22 @@ export const FAQS = [
     answer: 'We focus on data-driven strategies, transparent reporting, and treating your business like our own. Plus, we specialize in the Indian market with local expertise.'
   }
 ] as const;
+
+// ========================================
+// PORTFOLIO CASE STUDIES
+// ========================================
+// Detailed case studies showcasing client work and results
+// UPDATE GUIDE:
+// - Add new case studies: Create new object with unique 'id' (use kebab-case)
+// - Client info: Update 'title', 'client', 'location' fields
+// - Project details: Update 'category', 'duration', 'projectType'
+// - Content: Update 'description', 'challenge', 'solution' for storytelling
+// - Results: Update 'results' object with specific metrics
+// - Metrics array: Update display metrics (value/label pairs)
+// - Technologies: List tools and platforms used
+// - Testimonials: Include client quotes with attribution
+// - Categories: Use consistent category naming and colors
+// ========================================
 
 // Portfolio Case Studies Data
 export const CASE_STUDIES = [

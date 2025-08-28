@@ -1,6 +1,7 @@
 'use client'
 import { motion } from 'framer-motion'
 import { DollarSign, BarChart3, Smartphone, Shield, Headphones, Check } from 'lucide-react'
+import { ExpandableList } from '@/components/ui'
 
 const Pricing = () => {
   const scrollToSection = (sectionId: string) => {
@@ -141,21 +142,22 @@ const Pricing = () => {
                 <p className="text-gray-400 font-light">{plan.description}</p>
               </div>
               
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, idx) => (
-                  <motion.li 
-                    key={idx}
-                    className="flex items-center text-sm"
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.6 + idx * 0.1 }}
-                  >
+              <ExpandableList
+                items={plan.features}
+                renderItem={(feature: string) => (
+                  <li className="flex items-center text-sm">
                     <Check className="text-violet-400 mr-3" size={16} />
                     <span>{feature}</span>
-                  </motion.li>
-                ))}
-              </ul>
+                  </li>
+                )}
+                initialDisplayCount={5}
+                showMoreText="more features"
+                showLessText="Show less"
+                className="space-y-4 mb-8"
+                itemClassName=""
+                buttonClassName="text-xs text-violet-400 font-medium hover:text-violet-300 transition-colors cursor-pointer bg-white/5 hover:bg-white/10 px-3 py-1 rounded-full mt-2 flex items-center justify-center w-full"
+                ariaLabel={`${plan.name} plan features`}
+              />
               
               <motion.button 
                 className={`w-full px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center ${

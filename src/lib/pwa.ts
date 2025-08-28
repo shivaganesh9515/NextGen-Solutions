@@ -196,7 +196,8 @@ export const queueFormSubmission = async (formData: Record<string, unknown>): Pr
     // Request background sync if available
     if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
       const registration = await navigator.serviceWorker.ready
-      await registration.sync.register('contact-form-sync')
+      // Type assertion for background sync
+      await (registration as unknown as { sync: { register: (tag: string) => Promise<void> } }).sync.register('contact-form-sync')
     }
   } catch (error) {
     console.error('Failed to queue form submission:', error)
